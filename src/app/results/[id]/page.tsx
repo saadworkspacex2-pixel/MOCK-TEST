@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import { formatDuration, toBn } from "@/lib/bn";
+import { rulesOf } from "@/lib/examRules";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function ResultPage({
   if (!exam) notFound();
 
   /* ---------- WRITING: pending instructor review ---------- */
-  if (exam.module === "writing") {
+  if (attempt.status === "pending") {
     const words = attempt.essayText.trim()
       ? attempt.essayText.trim().split(/\s+/).length
       : 0;
@@ -93,6 +94,60 @@ export default async function ResultPage({
     );
   }
 
+  if (exam.module === "writing") {
+    const fb = (attempt.feedback ?? {}) as {
+      criteria?: Record<string, number>;
+      comments?: Array<{ id: number; quote: string; comment: string }>;
+    };
+    const labels: Record<string, string> = {
+      tr: "Task Response",
+      cc: "Coherence & Cohesion",
+      lr: "Lexical Resource",
+      gra: "Grammatical Range & Accuracy",
+    };
+    return (
+      <div className="min-h-screen bg-[#F8F9FA]">
+        <Navbar />
+        <main className="mx-auto max-w-3xl px-5 pt-28 pb-24 sm:px-8">
+          <div className="anim-pop card rounded-xl p-10 text-center">
+            <p className="text-sm font-semibold text-[#6C757D]">ইনস্ট্রাক্টর মূল্যায়ন প্রকাশিত</p>
+            <h1 className="mt-3 text-lg font-bold">{exam.title}</h1>
+            <p className="mt-6 text-xs font-bold tracking-widest text-[#6C757D]">OVERALL BAND</p>
+            <p className="text-7xl font-extrabold text-[#E51A24]">{attempt.bandScore !== null ? toBn(attempt.bandScore) : "–"}</p>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {Object.entries(fb.criteria ?? {}).map(([key, value]) => (
+              <div key={key} className="card flex items-center justify-between rounded-lg p-5">
+                <span className="text-sm font-semibold">{labels[key] ?? key}</span>
+                <span className="text-2xl font-extrabold">{toBn(value)}</span>
+              </div>
+            ))}
+          </div>
+          {(fb.comments ?? []).length > 0 && (
+            <section className="card mt-6 rounded-lg p-6">
+              <h2 className="font-bold">ইনস্ট্রাক্টরের মন্তব্য</h2>
+              <div className="mt-4 space-y-3">
+                {(fb.comments ?? []).map((c) => (
+                  <div key={c.id} className="rounded-md border-l-2 border-amber-400 bg-[#F8F9FA] p-4 text-sm">
+                    <p className="font-semibold">“{c.quote}”</p>
+                    <p className="mt-1 text-[#6C757D]">{c.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+          <section className="card mt-6 rounded-lg p-6">
+            <h2 className="font-bold">আপনার লেখা</h2>
+            <p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#212529]">{attempt.essayText}</p>
+          </section>
+          <Link href="/exams" className="btn-red mt-7 inline-block rounded-md px-6 py-3 text-sm font-bold">আরও টেস্ট দিন</Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const rules = rulesOf(exam.rules);
   const rank = better.c + 1;
   const answers = (attempt.answers ?? {}) as Record<string, number | string>;
   const totalMarks = attempt.totalQuestions * exam.marksPerQuestion;
@@ -329,7 +384,7 @@ export default async function ResultPage({
                       })}
                     </div>
                   )}
-                  {q.explanation && (
+                  {q.explanation && rules.showExplanations !== false && (
                     <p className="mt-4 rounded-md bg-slate-100 px-4 py-3 text-sm leading-relaxed text-slate-700">
                       <span className="font-semibold text-slate-600">
                         ব্যাখ্যা:

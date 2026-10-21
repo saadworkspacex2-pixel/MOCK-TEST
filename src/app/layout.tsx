@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { getSettings } from "@/lib/settings";
+import { buildThemeCss } from "@/lib/themeCss";
+import InjectCode from "@/components/InjectCode";
 
 // Self-hosted fonts (bundled with the app, no external CDN requests).
 // This keeps Bangla + English typography working in every deploy environment.
@@ -32,11 +34,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const s = await getSettings();
   return (
     <html lang="bn">
       <body className="bg-[#F8F9FA] text-[#1A1A1A] antialiased">
+        <style
+          id="lhbd-theme"
+          dangerouslySetInnerHTML={{ __html: buildThemeCss(s) }}
+        />
+        <InjectCode html={s.header_code ?? ""} target="head" />
         {children}
+        <InjectCode html={s.footer_code ?? ""} target="body" />
       </body>
     </html>
   );

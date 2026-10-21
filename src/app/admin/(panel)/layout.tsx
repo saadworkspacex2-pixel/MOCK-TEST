@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/adminAuth";
+import { adminContext } from "@/lib/adminAuth";
 import AdminShell from "./AdminShell";
 
 export default async function AdminPanelLayout({
@@ -8,7 +8,11 @@ export default async function AdminPanelLayout({
 }: {
   children: ReactNode;
 }) {
-  const authed = await isAdmin();
-  if (!authed) redirect("/admin/login");
-  return <AdminShell>{children}</AdminShell>;
+  const ctx = await adminContext();
+  if (!ctx) redirect("/admin/login");
+  return (
+    <AdminShell role={ctx.role} adminName={ctx.name}>
+      {children}
+    </AdminShell>
+  );
 }

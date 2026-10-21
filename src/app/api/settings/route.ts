@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { isAdmin } from "@/lib/adminAuth";
+import { canAccess } from "@/lib/adminAuth";
 
 export async function GET() {
   const rows = await db.select().from(settings);
@@ -11,7 +11,7 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  if (!(await isAdmin())) {
+  if (!(await canAccess("settings"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const body = await req.json().catch(() => null);

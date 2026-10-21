@@ -3,11 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LogoMark } from "@/components/Logo";
+import type { ExamRules } from "@/lib/examRules";
 
 type Q = {
   id: number;
   sectionId: number | null;
-  qtype: "mcq" | "gap" | "tfng";
+  qtype: string;
   text: string;
   options: string[];
 };
@@ -26,6 +27,7 @@ type ExamInfo = {
   durationMinutes: number;
   negativeMark: number;
   marksPerQuestion: number;
+  rules: ExamRules;
 };
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
@@ -47,6 +49,11 @@ export default function TakeExamClient({ examId }: { examId: number }) {
   const startTime = useRef<number>(Date.now());
   const submitted = useRef(false);
   const qRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const sessionToken = useRef<string>(
+    typeof window !== "undefined" ? crypto.randomUUID() : "",
+  );
+  const [optionOrders, setOptionOrders] = useState<Record<number, number[]>>({});
+  const [sectionSeconds, setSectionSeconds] = useState<number | null>(null);
 
   const studentName =
     typeof window !== "undefined"
@@ -64,7 +71,14 @@ export default function TakeExamClient({ examId }: { examId: number }) {
         if (!data.exam) throw new Error("not found");
         setExam(data.exam);
         setSecs(data.sections ?? []);
-        setQuestionList(data.questions ?? []);
+        const incoming = (data.questions ?? []) as Q[];
+        const shuffled = data.exam.rules?.shuffleQuestions ? [...incoming].sort(() => Math.random() - 0.5) : incoming;
+        setQuestionList(shuffled);
+        if (data.exam.rules?.shuffleOptions) {
+          const orders: Record<number, number[]> = {};
+          for (const q of shuffled) orders[q.id] = q.options.map((_, i) => i).sort(() => Math.random() - 0.5);
+          setOptionOrders(orders);
+        }
         setSecondsLeft(data.exam.durationMinutes * 60);
         startTime.current = Date.now();
       })
@@ -108,6 +122,7 @@ export default function TakeExamClient({ examId }: { examId: number }) {
           studentName,
           answers,
           essayText: essay,
+          sessionToken: sessionToken.current,
           timeTakenSeconds: Math.round((Date.now() - startTime.current) / 1000),
         }),
       });
@@ -130,6 +145,51 @@ export default function TakeExamClient({ examId }: { examId: number }) {
     const t = setTimeout(() => setSecondsLeft((s) => (s ?? 1) - 1), 1000);
     return () => clearTimeout(t);
   }, [secondsLeft, submit]);
+
+  // Live heartbeat for the admin monitoring desk
+  useEffect(() => {
+    if (!exam || !studentName) return;
+    const beat = () => {
+      fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: sessionToken.current,
+          examId,
+          studentName,
+        }),
+      }).catch(() => {});
+    };
+    beat();
+    const t = setInterval(beat, 20000);
+    return () => clearInterval(t);
+  }, [exam, examId, studentName]);
+
+  // Anti-cheat: switching tabs auto-submits when enabled for this exam
+  useEffect(() => {
+    if (!exam?.rules?.antiCheat) return;
+    const onVisibility = () => {
+      if (document.hidden) submit();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [exam, submit]);
+
+  // Optional per-section timer
+  const sectionMinutes = exam?.rules?.sectionTimeMinutes ?? 0;
+  useEffect(() => {
+    if (sectionMinutes > 0) setSectionSeconds(sectionMinutes * 60);
+  }, [activePart, sectionMinutes]);
+  useEffect(() => {
+    if (sectionMinutes <= 0 || sectionSeconds === null) return;
+    if (sectionSeconds <= 0) {
+      if (activePart < parts.length - 1) setActivePart((p) => p + 1);
+      else submit();
+      return;
+    }
+    const t = setTimeout(() => setSectionSeconds((s) => (s ?? 1) - 1), 1000);
+    return () => clearTimeout(t);
+  }, [sectionSeconds, sectionMinutes, activePart, parts.length, submit]);
 
   const jumpTo = (q: Q) => {
     const pi = parts.findIndex((p) => p.questions.some((x) => x.id === q.id));
@@ -247,44 +307,73 @@ export default function TakeExamClient({ examId }: { examId: number }) {
         {q.qtype === "gap" ? (
           <input
             value={typeof val === "string" ? val : ""}
-            onChange={(e) =>
-              setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
-            }
+            onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
             placeholder="উত্তর টাইপ করুন…"
             className="mt-4 w-full max-w-sm rounded-md border border-stone-300 bg-stone-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-700 focus:bg-white focus:ring-2 focus:ring-slate-700/15"
           />
+        ) : q.qtype === "essay" ? (
+          <textarea
+            value={typeof val === "string" ? val : ""}
+            onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
+            rows={7}
+            placeholder="আপনার উত্তর লিখুন… ইনস্ট্রাক্টর মূল্যায়ন করবেন"
+            className="mt-4 w-full rounded-md border border-stone-300 bg-stone-50 px-4 py-3 text-sm leading-relaxed outline-none focus:border-slate-700"
+          />
+        ) : q.qtype === "dnd" ? (
+          <div className="mt-4 space-y-2">
+            <p className="text-xs text-stone-500">অপশনগুলো ড্র্যাগ করে সঠিক ক্রমে সাজান (অথবা ↑ ↓ চাপুন)</p>
+            {(() => {
+              const base = optionOrders[q.id] ?? q.options.map((_, i) => i);
+              const order = typeof val === "string" && val
+                ? val.split(",").map(Number)
+                : base.filter((i) => q.options[i] !== "");
+              const setOrder = (arr: number[]) => setAnswers((a) => ({ ...a, [q.id]: arr.join(",") }));
+              return order.map((orig, idx) => (
+                <div
+                  key={orig}
+                  draggable
+                  onDragStart={(e) => e.dataTransfer.setData("text/plain", String(idx))}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const from = Number(e.dataTransfer.getData("text/plain"));
+                    if (from === idx) return;
+                    const next = [...order];
+                    const [moved] = next.splice(from, 1);
+                    next.splice(idx, 0, moved);
+                    setOrder(next);
+                  }}
+                  className="flex cursor-move items-center gap-3 rounded-md border border-stone-300 bg-white px-4 py-2.5 text-sm"
+                >
+                  <span className="font-mono text-xs text-stone-400">≡ {idx + 1}</span>
+                  <span className="flex-1">{q.options[orig]}</span>
+                  <button type="button" onClick={() => { if (idx === 0) return; const next = [...order]; [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]; setOrder(next); }} className="px-2 text-stone-500">↑</button>
+                  <button type="button" onClick={() => { if (idx === order.length - 1) return; const next = [...order]; [next[idx + 1], next[idx]] = [next[idx], next[idx + 1]]; setOrder(next); }} className="px-2 text-stone-500">↓</button>
+                </div>
+              ));
+            })()}
+          </div>
         ) : (
           <div className="mt-4 space-y-2">
-            {q.options
-              .filter((o) => o !== "")
-              .map((opt, i) => {
-                const selected = val === i;
+            {(optionOrders[q.id] ?? q.options.map((_, i) => i))
+              .filter((orig) => q.options[orig] !== "")
+              .map((orig) => {
+                const opt = q.options[orig];
+                const selected = val === orig;
                 return (
                   <label
-                    key={i}
+                    key={orig}
                     className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-2.5 text-sm transition-all ${
                       selected
                         ? "border-slate-800 bg-slate-800 text-white"
                         : "border-stone-200 bg-stone-50 text-slate-800 hover:border-stone-400 hover:bg-white"
                     }`}
                   >
-                    <input
-                      type="radio"
-                      checked={selected}
-                      onChange={() =>
-                        setAnswers((a) => ({ ...a, [q.id]: i }))
-                      }
-                      className="h-4 w-4 accent-slate-800"
-                    />
+                    <input type="radio" checked={selected} onChange={() => setAnswers((a) => ({ ...a, [q.id]: orig }))} className="h-4 w-4 accent-slate-800" />
                     {q.qtype === "tfng" ? (
-                      <span className="font-semibold tracking-wide">
-                        {opt}
-                      </span>
+                      <span className="font-semibold tracking-wide">{opt}</span>
                     ) : (
-                      <span>
-                        <b className="mr-1.5">{OPTION_LABELS[i]}</b>
-                        {opt}
-                      </span>
+                      <span><b className="mr-1.5">{OPTION_LABELS[orig]}</b>{opt}</span>
                     )}
                   </label>
                 );

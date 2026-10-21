@@ -19,6 +19,7 @@ export const exams = pgTable("exams", {
   marksPerQuestion: real("marks_per_question").notNull().default(1),
   negativeMark: real("negative_mark").notNull().default(0),
   isLive: boolean("is_live").notNull().default(true),
+  rules: jsonb("rules").notNull().default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -102,6 +103,45 @@ export const attempts = pgTable("attempts", {
   answers: jsonb("answers").notNull().default({}), // { [questionId]: optionIndex|string }
   essayText: text("essay_text").notNull().default(""), // writing module
   status: text("status").notNull().default("scored"), // scored | pending
+  feedback: jsonb("feedback").notNull().default({}),
+  ip: text("ip").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const pageSections = pgTable("page_sections", {
+  id: serial("id").primaryKey(),
+  page: text("page").notNull().default("home"),
+  type: text("type").notNull().default("html"),
+  title: text("title").notNull().default(""),
+  content: jsonb("content").notNull().default({}),
+  sortOrder: integer("sort_order").notNull().default(0),
+  enabled: boolean("enabled").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const staff = pgTable("staff", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  salt: text("salt").notNull(),
+  role: text("role").notNull().default("content"),
+  sessionToken: text("session_token").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const examSessions = pgTable("exam_sessions", {
+  id: serial("id").primaryKey(),
+  token: text("token").notNull().unique(),
+  examId: integer("exam_id")
+    .notNull()
+    .references(() => exams.id, { onDelete: "cascade" }),
+  userId: integer("user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  studentName: text("student_name").notNull().default(""),
+  submitted: boolean("submitted").notNull().default(false),
+  lastSeen: timestamp("last_seen").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

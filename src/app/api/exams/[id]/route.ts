@@ -40,6 +40,7 @@ export async function PUT(req: Request, { params }: Params) {
         negativeMark: Number(body.negativeMark),
       }),
       ...(body.isLive !== undefined && { isLive: Boolean(body.isLive) }),
+      ...(body.rules !== undefined && { rules: body.rules }),
     })
     .where(eq(exams.id, Number(id)))
     .returning();

@@ -3,6 +3,7 @@ import { resources } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DynamicSections from "@/components/DynamicSections";
 import Reveal from "@/components/Reveal";
 import Icon from "@/components/Icon";
 import { formatDateBn } from "@/lib/bn";
@@ -127,6 +128,7 @@ export default async function ResourcesPage({
           )}
         </div>
       </main>
+      <DynamicSections page="resources" />
       <Footer />
     </div>
   );

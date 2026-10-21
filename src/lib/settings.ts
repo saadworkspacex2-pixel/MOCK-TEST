@@ -19,6 +19,8 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
   cta_title: "আজই প্রস্তুতি শুরু করুন",
   cta_subtitle:
     "রেজিস্ট্রেশন নেই, খরচ নেই। নাম লিখে এক ক্লিকেই আসল পরীক্ষার স্ক্রিনে।",
+  header_code: "",
+  footer_code: "",
 };
 
 export async function getSettings(): Promise<Record<string, string>> {

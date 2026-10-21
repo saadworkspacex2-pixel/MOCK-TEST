@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toBn } from "@/components/CountUp";
+import BulkTools from "./BulkTools";
 
 type Exam = {
   id: number;
@@ -68,6 +69,10 @@ export default function AdminExamsPage() {
         >
           + নতুন পরীক্ষা
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <BulkTools exams={rows} onDone={load} />
       </div>
 
       {loading ? (

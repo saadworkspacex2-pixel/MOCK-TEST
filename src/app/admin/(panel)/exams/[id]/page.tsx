@@ -5,6 +5,7 @@ import { exams } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import ExamForm from "../ExamForm";
 import QuestionManager from "./QuestionManager";
+import { rulesOf } from "@/lib/examRules";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,7 @@ export default async function EditExamPage({
               marksPerQuestion: exam.marksPerQuestion,
               negativeMark: exam.negativeMark,
               isLive: exam.isLive,
+              rules: rulesOf(exam.rules),
             }}
           />
         </section>

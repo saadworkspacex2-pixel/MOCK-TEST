@@ -3,6 +3,7 @@ import { attempts, exams } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DynamicSections from "@/components/DynamicSections";
 import Reveal from "@/components/Reveal";
 import { formatDateBn, formatDuration, toBn } from "@/lib/bn";
 import Link from "next/link";
@@ -164,6 +165,7 @@ export default async function LeaderboardPage({
           </Link>
         </Reveal>
       </main>
+      <DynamicSections page="leaderboard" />
       <Footer />
     </div>
   );

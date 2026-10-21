@@ -7,17 +7,40 @@ import Logo from "@/components/Logo";
 import Icon from "@/components/Icon";
 
 const NAV = [
-  { href: "/admin", label: "ড্যাশবোর্ড", icon: "chart" },
-  { href: "/admin/exams", label: "পরীক্ষা ম্যানেজ", icon: "doc" },
-  { href: "/admin/resources", label: "রিসোর্স", icon: "book" },
-  { href: "/admin/results", label: "ফলাফল", icon: "trophy" },
-  { href: "/admin/settings", label: "সেটিংস ও SEO", icon: "globe" },
+  { href: "/admin", label: "ড্যাশবোর্ড", icon: "chart", area: "all" },
+  { href: "/admin/exams", label: "পরীক্ষা ম্যানেজ", icon: "doc", area: "exams" },
+  { href: "/admin/grading", label: "গ্রেডিং স্টুডিও", icon: "pen", area: "grading" },
+  { href: "/admin/students", label: "স্টুডেন্ট CRM", icon: "users", area: "students" },
+  { href: "/admin/analytics", label: "লাইভ অ্যানালিটিক্স", icon: "chart", area: "analytics" },
+  { href: "/admin/pages", label: "পেজ বিল্ডার", icon: "screen", area: "pages" },
+  { href: "/admin/theme", label: "থিম ও ফন্ট", icon: "bulb", area: "theme" },
+  { href: "/admin/media", label: "মিডিয়া ভল্ট", icon: "play", area: "media" },
+  { href: "/admin/resources", label: "রিসোর্স", icon: "book", area: "pages" },
+  { href: "/admin/results", label: "ফলাফল", icon: "trophy", area: "exams" },
+  { href: "/admin/settings", label: "সেটিংস ও SEO", icon: "globe", area: "settings" },
+  { href: "/admin/staff", label: "স্টাফ ও রোল", icon: "shield", area: "staff" },
 ];
 
-export default function AdminShell({ children }: { children: ReactNode }) {
+const ROLE_AREAS: Record<string, string[]> = {
+  super: ["all", "exams", "grading", "students", "analytics", "pages", "theme", "media", "settings", "staff"],
+  exam: ["all", "exams", "media", "analytics"],
+  evaluator: ["all", "grading", "students", "analytics"],
+  content: ["all", "pages", "theme", "media", "settings"],
+};
+
+export default function AdminShell({
+  children,
+  role = "super",
+  adminName = "Admin",
+}: {
+  children: ReactNode;
+  role?: string;
+  adminName?: string;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const visibleNav = NAV.filter((n) => (ROLE_AREAS[role] ?? ["all"]).includes(n.area));
 
   const logout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -26,8 +49,8 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   };
 
   const nav = (
-    <nav className="flex flex-col gap-1 p-4">
-      {NAV.map((n) => {
+    <nav className="flex max-h-[calc(100vh-4rem)] flex-col gap-1 overflow-y-auto p-4">
+      {visibleNav.map((n) => {
         const active =
           n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href);
         return (
@@ -77,7 +100,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         <h1 className="text-sm font-semibold text-slate-700">
           অ্যাডমিন <span className="text-[#E51A24]">প্যানেল</span>
         </h1>
-        <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-[#E51A24]">
+        <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-[#E51A24]" title={adminName}>
           ● অনলাইন
         </span>
       </header>

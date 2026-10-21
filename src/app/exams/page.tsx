@@ -4,6 +4,7 @@ import { exams, questions } from "@/db/schema";
 import { count, desc, eq } from "drizzle-orm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DynamicSections from "@/components/DynamicSections";
 import Reveal from "@/components/Reveal";
 import { toBn } from "@/lib/bn";
 
@@ -136,6 +137,7 @@ export default async function ExamsPage({
           )}
         </div>
       </main>
+      <DynamicSections page="exams" />
       <Footer />
     </div>
   );

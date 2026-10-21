@@ -8,6 +8,7 @@ import { LogoMark } from "@/components/Logo";
 export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +18,7 @@ export default function AdminLoginPage() {
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ password, email }),
     });
     setLoading(false);
     if (res.ok) {
@@ -43,6 +44,8 @@ export default function AdminLoginPage() {
             পরীক্ষা, প্রশ্ন ও রিসোর্স পরিচালনার জন্য লগইন করুন
           </p>
         </div>
+        <label className="mt-7 block text-sm font-medium text-slate-700">স্টাফ ইমেইল (ঐচ্ছিক)</label>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@email.com" className="mt-2 w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm outline-none" />
         <label className="mt-7 block text-sm font-medium text-slate-700">
           পাসওয়ার্ড
         </label>

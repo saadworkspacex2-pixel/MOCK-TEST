@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { ExamRules } from "@/lib/examRules";
 
 export type ExamFormData = {
   title: string;
@@ -12,6 +13,7 @@ export type ExamFormData = {
   marksPerQuestion: number;
   negativeMark: number;
   isLive: boolean;
+  rules: ExamRules;
 };
 
 const CATEGORY_OPTIONS = [
@@ -44,6 +46,7 @@ export default function ExamForm({
       marksPerQuestion: 1,
       negativeMark: 0,
       isLive: true,
+      rules: { showExplanations: true },
     },
   );
   const [saving, setSaving] = useState(false);
@@ -52,6 +55,9 @@ export default function ExamForm({
 
   const set = <K extends keyof ExamFormData>(k: K, v: ExamFormData[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  const toggleRule = (k: keyof ExamRules) =>
+    setForm((f) => ({ ...f, rules: { ...f.rules, [k]: !f.rules[k] } }));
 
   const save = async () => {
     if (!form.title.trim()) {
@@ -196,6 +202,29 @@ export default function ExamForm({
               />
             </button>
             {form.isLive ? "লাইভ আছে" : "লাইভ নয়"}
+          </label>
+        </div>
+      </div>
+      <div className="mt-7 rounded-md border border-black/[0.07] bg-[#F8F9FA] p-5">
+        <h3 className="text-sm font-bold">প্রোক্টরিং ও পরীক্ষার আচরণ</h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["antiCheat", "ট্যাব বদলালে স্বয়ংক্রিয় জমা (anti-cheat)"],
+              ["shuffleQuestions", "প্রশ্ন এলোমেলো করুন"],
+              ["shuffleOptions", "অপশন এলোমেলো করুন"],
+              ["showExplanations", "ফলাফলে ব্যাখ্যা দেখান"],
+              ["hideResults", "ইনস্ট্রাক্টর রিভিউ পর্যন্ত ফলাফল লুকান"],
+            ] as Array<[keyof ExamRules, string]>
+          ).map(([key, label]) => (
+            <label key={key} className="flex items-center gap-2.5 text-sm font-medium">
+              <input type="checkbox" checked={Boolean(form.rules[key])} onChange={() => toggleRule(key)} className="h-4 w-4 accent-[#E51A24]" />
+              {label}
+            </label>
+          ))}
+          <label className="text-sm font-medium">
+            প্রতি সেকশনে সময় (মিনিট, ০ = নিষ্ক্রিয়)
+            <input type="number" min={0} value={form.rules.sectionTimeMinutes ?? 0} onChange={(e) => setForm((f) => ({ ...f, rules: { ...f.rules, sectionTimeMinutes: Number(e.target.value) } }))} className={input} />
           </label>
         </div>
       </div>

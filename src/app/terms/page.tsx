@@ -1,5 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DynamicSections from "@/components/DynamicSections";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "ব্যবহারের শর্তাবলি | LHBD",
@@ -63,6 +66,7 @@ export default function TermsPage() {
           ))}
         </div>
       </main>
+      <DynamicSections page="terms" />
       <Footer />
     </div>
   );

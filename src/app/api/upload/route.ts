@@ -3,17 +3,22 @@ import { db } from "@/db";
 import { media } from "@/db/schema";
 import { isAdmin } from "@/lib/adminAuth";
 
-const MAX_BYTES = 15 * 1024 * 1024; // 15MB
-const ALLOWED = [
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/wav",
-  "audio/ogg",
-  "audio/mp4",
-  "audio/aac",
-  "audio/webm",
-  "audio/x-m4a",
-];
+const MAX_BYTES = 20 * 1024 * 1024; // 20MB
+
+function allowedMime(mime: string): boolean {
+  return (
+    mime.startsWith("audio/") ||
+    mime.startsWith("image/") ||
+    mime === "application/pdf" ||
+    mime === "font/woff2" ||
+    mime === "font/woff" ||
+    mime === "font/ttf" ||
+    mime === "font/otf" ||
+    mime === "application/font-woff" ||
+    mime === "application/vnd.ms-fontobject" ||
+    mime === "application/octet-stream"
+  );
+}
 
 export async function POST(req: Request) {
   if (!(await isAdmin())) {
@@ -26,13 +31,19 @@ export async function POST(req: Request) {
   }
   if (file.size > MAX_BYTES) {
     return NextResponse.json(
-      { error: "ফাইল সর্বোচ্চ ১৫ মেগাবাইট হতে পারবে" },
+      { error: "ফাইল সর্বোচ্চ ২০ মেগাবাইট হতে পারবে" },
       { status: 413 },
     );
   }
-  if (!ALLOWED.includes(file.type)) {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const fontExts = ["woff2", "woff", "ttf", "otf"];
+  let mime = file.type || "application/octet-stream";
+  if (fontExts.includes(ext)) {
+    mime = ext === "woff2" ? "font/woff2" : ext === "woff" ? "font/woff" : `font/${ext}`;
+  }
+  if (!allowedMime(mime)) {
     return NextResponse.json(
-      { error: "শুধু অডিও ফাইল (mp3, wav, ogg, m4a) আপলোড করা যাবে" },
+      { error: "অডিও, ছবি, PDF বা ফন্ট ফাইল আপলোড করুন" },
       { status: 415 },
     );
   }
@@ -41,13 +52,13 @@ export async function POST(req: Request) {
     .insert(media)
     .values({
       filename: file.name,
-      mime: file.type,
+      mime,
       data: buf.toString("base64"),
     })
     .returning({ id: media.id });
 
   return NextResponse.json(
-    { url: `/api/media/${row.id}`, id: row.id },
+    { url: `/api/media/${row.id}`, id: row.id, mime, size: file.size },
     { status: 201 },
   );
 }

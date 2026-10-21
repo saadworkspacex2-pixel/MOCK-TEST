@@ -333,11 +333,11 @@ export default function QuestionManager({
       setError("প্রশ্নটি লিখুন");
       return;
     }
-    if (qForm.qtype === "mcq" && (!qForm.optionA.trim() || !qForm.optionB.trim())) {
+    if ((qForm.qtype === "mcq" || qForm.qtype === "matching" || qForm.qtype === "dnd") && (!qForm.optionA.trim() || !qForm.optionB.trim())) {
       setError("MCQ-এর জন্য অন্তত A ও B অপশন দিন");
       return;
     }
-    if (qForm.qtype === "gap" && !qForm.acceptedAnswers.trim()) {
+    if ((qForm.qtype === "gap" || qForm.qtype === "dnd") && !qForm.acceptedAnswers.trim()) {
       setError("গ্রহণযোগ্য উত্তর দিন (একাধিক হলে | দিয়ে আলাদা করুন)");
       return;
     }
@@ -694,6 +694,9 @@ export default function QuestionManager({
                       className={input}
                     >
                       <option value="mcq">MCQ (A/B/C/D)</option>
+                      <option value="matching">Matching Headings</option>
+                      <option value="dnd">Drag-and-Drop Ordering</option>
+                      <option value="essay">Essay Writing</option>
                       <option value="tfng">TRUE / FALSE / NOT GIVEN</option>
                       <option value="gap">ফাঁকা পূরণ (টাইপ করা উত্তর)</option>
                     </select>
@@ -736,7 +739,7 @@ export default function QuestionManager({
                   className={input}
                 />
 
-                {qForm.qtype === "mcq" && (
+                {(qForm.qtype === "mcq" || qForm.qtype === "matching" || qForm.qtype === "dnd") && (
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {OPTION_KEYS.map((key, i) => (
                       <div key={key}>
@@ -796,10 +799,10 @@ export default function QuestionManager({
                   </div>
                 )}
 
-                {qForm.qtype === "gap" && (
+                {(qForm.qtype === "gap" || qForm.qtype === "dnd") && (
                   <div className="mt-4">
                     <label className="text-sm font-medium text-slate-700">
-                      গ্রহণযোগ্য উত্তর * (একাধিক হলে | দিয়ে আলাদা করুন)
+                      {qForm.qtype === "dnd" ? "সঠিক ক্রম (যেমন: 0,1,2,3)" : "গ্রহণযোগ্য উত্তর * (একাধিক হলে | দিয়ে আলাদা করুন)"}
                     </label>
                     <input
                       value={qForm.acceptedAnswers}
@@ -870,7 +873,13 @@ export default function QuestionManager({
                         ? "ফাঁকা পূরণ"
                         : q.qtype === "tfng"
                           ? "T/F/NG"
-                          : "MCQ"}
+                          : q.qtype === "dnd"
+                            ? "Drag-Drop"
+                            : q.qtype === "matching"
+                              ? "Matching"
+                              : q.qtype === "essay"
+                                ? "Essay"
+                                : "MCQ"}
                       {sec ? ` · ${sec.title}` : ""}
                     </span>
                   </h3>
@@ -907,7 +916,7 @@ export default function QuestionManager({
                   </div>
                 </div>
 
-                {q.qtype === "gap" ? (
+                {(q.qtype === "gap" || q.qtype === "dnd") ? (
                   <p className="mt-3 text-sm font-medium text-green-700">
                     গ্রহণযোগ্য উত্তর: {q.acceptedAnswers.split("|").join(" / ")}
                   </p>

@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+:root {
+  --lhbd-red: #e51a24;
+  --lhbd-red-dark: #c8141d;
+  --lhbd-ink: #1a1a1a;
+  --lhbd-ink-2: #212529;
+  --lhbd-muted: #6c757d;
+  --lhbd-bg: #f8f9fa;
+  --font-latin: "Manrope", sans-serif;
+  --font-bangla: "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-latin), var(--font-bangla), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(229, 26, 36, 0.14);
+  color: var(--lhbd-ink);
+}
+
+/* ---------------- Animations (entrance only, no hover motion) ---------------- */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 26, 36, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(229, 26, 36, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 26, 36, 0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
+}
+
+.anim-fade-up {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-fade-in {
+  animation: fadeIn 0.7s ease both;
+}
+.anim-pop {
+  animation: popIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-pulse-ring {
+  animation: pulseRing 2s infinite;
+}
+.anim-marquee {
+  animation: marquee 32s linear infinite;
+}
+.anim-marquee:hover {
+  animation-play-state: paused;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+.delay-200 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.3s;
+}
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+/* scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------- Surfaces: hairline borders, no drop shadows ---------------- */
+
+.card {
+  background: #ffffff;
+  border: 1px solid rgba(26, 26, 26, 0.09);
+}
+
+/* legacy class names kept as flat surfaces */
+.glass {
+  background: #ffffff;
+  border: 1px solid rgba(26, 26, 26, 0.09);
+}
+
+.lift {
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+.lift:hover {
+  border-color: rgba(26, 26, 26, 0.22);
+}
+
+/* buttons: color transitions only */
+.btn-red {
+  background: var(--lhbd-red);
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+.btn-red:hover {
+  background: var(--lhbd-red-dark);
+}
+
+.btn-ink {
+  background: var(--lhbd-ink);
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+.btn-ink:hover {
+  background: #343a40;
+}
+
+.btn-ghost {
+  background: #fff;
+  border: 1px solid rgba(26, 26, 26, 0.14);
+  color: var(--lhbd-ink);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.btn-ghost:hover {
+  border-color: rgba(26, 26, 26, 0.32);
+  background: #f8f9fa;
+}
+
+/* skeleton shimmer */
+.shimmer {
+  background: linear-gradient(90deg, #eef0f2 25%, #e4e7ea 50%, #eef0f2 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* underline link effect */
+.link-slide {
+  position: relative;
+}
+.link-slide::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 100%;
+  background: var(--lhbd-red);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-slide:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ---------------- Print (PDF report) ---------------- */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body {
+    background: #fff !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

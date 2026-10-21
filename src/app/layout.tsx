@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { getSettings } from "@/lib/settings";
+
+// Self-hosted fonts (bundled with the app, no external CDN requests).
+// This keeps Bangla + English typography working in every deploy environment.
+import "@fontsource/manrope/400.css";
+import "@fontsource/manrope/500.css";
+import "@fontsource/manrope/600.css";
+import "@fontsource/manrope/700.css";
+import "@fontsource/manrope/800.css";
+import "@fontsource/hind-siliguri/300.css";
+import "@fontsource/hind-siliguri/400.css";
+import "@fontsource/hind-siliguri/500.css";
+import "@fontsource/hind-siliguri/600.css";
+import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,18 +35,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="bn">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="bg-[#F8F9FA] text-[#1A1A1A] antialiased">
         {children}
       </body>

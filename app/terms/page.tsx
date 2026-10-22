@@ -1,0 +1,74 @@
+import SpringHeading from "@/components/SpringHeading";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import DynamicSections from "@/components/DynamicSections";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "ব্যবহারের শর্তাবলি | LHBD",
+};
+
+const SECTIONS = [
+  {
+    h: "১. সেবার পরিচিতি",
+    p: "LHBD একটি অনলাইন মক টেস্ট প্ল্যাটফর্ম। এখানে Reading, Listening, Writing ও Grammar মক টেস্ট, ফলাফল, ব্যাখ্যা, লিডারবোর্ড ও রিসোর্স বিনামূল্যে ব্যবহার করা যায়। সাইট ব্যবহার করলেই আপনি এই শর্তাবলিতে সম্মত হচ্ছেন বলে ধরে নেওয়া হবে।",
+  },
+  {
+    h: "২. ব্যবহারের নিয়ম",
+    p: "টেস্ট দেওয়ার সময় সঠিক নাম ব্যবহার করুন। অন্য কারও নামে ফলাফল জমা দেওয়া, স্বয়ংক্রিয় স্ক্রিপ্ট দিয়ে উত্তর জমা দেওয়া, বা লিডারবোর্ডে কারসাজির চেষ্টা করা নিষিদ্ধ। এ ধরনের কার্যকলাপ শনাক্ত হলে সংশ্লিষ্ট ফলাফল মুছে ফেলা হতে পারে।",
+  },
+  {
+    h: "৩. কনটেন্টের মালিকানা",
+    p: "প্ল্যাটফর্মের সব প্রশ্ন, প্যাসেজ, ব্যাখ্যা ও রিসোর্স LHBD-র নিজস্ব তৈরি। ব্যক্তিগত অনুশীলনের জন্য এগুলো ব্যবহার করা যাবে; বাণিজ্যিক উদ্দেশ্যে অনুলিপি, বিতরণ বা পুনঃপ্রকাশ করা যাবে না।",
+  },
+  {
+    h: "৪. ফলাফল সম্পর্কে",
+    p: "এখানে প্রদত্ত ব্যান্ড স্কোর অনুশীলনের সুবিধার্থে স্ট্যান্ডার্ড কনভার্সন টেবিল অনুসরণ করে হিসাব করা হয়। এটি কোনো আন্তর্জাতিক পরীক্ষা সংস্থার অফিসিয়াল স্কোর নয় এবং আসল পরীক্ষার ফলাফলের নিশ্চয়তা দেয় না।",
+  },
+  {
+    h: "৫. সেবার প্রাপ্যতা",
+    p: "আমরা সেবাটি নিরবচ্ছিন্ন রাখার চেষ্টা করি, তবে রক্ষণাবেক্ষণ বা কারিগরি কারণে যেকোনো সময় সাময়িক বিরতি হতে পারে। কনটেন্ট ও ফিচার পূর্বঘোষণা ছাড়া পরিবর্তন হতে পারে।",
+  },
+  {
+    h: "৬. দায়বদ্ধতার সীমা",
+    p: "প্ল্যাটফর্মটি যেমন আছে তেমনভাবে প্রদান করা হয়। ব্যবহারজনিত কোনো প্রত্যক্ষ বা পরোক্ষ ক্ষতির জন্য LHBD দায়ী থাকবে না।",
+  },
+  {
+    h: "৭. শর্ত পরিবর্তন",
+    p: "প্রয়োজনে এই শর্তাবলি হালনাগাদ করা হতে পারে। গুরুত্বপূর্ণ পরিবর্তন হলে এই পৃষ্ঠায় তা প্রকাশ করা হবে।",
+  },
+];
+
+export default function TermsPage() {
+  return (
+    <div className="min-h-screen bg-[#F8F9FA]">
+      <Navbar />
+      <main className="mx-auto max-w-3xl px-5 pt-32 pb-24 sm:px-8">
+        <div className="anim-fade-up">
+          <span className="rounded-full bg-[#E51A24]/[0.08] px-4 py-1.5 text-xs font-bold tracking-wide text-[#E51A24]">
+            আইনি
+          </span>
+          <SpringHeading as="h1" className="mt-5 text-3xl font-bold tracking-tight text-[#1A1A1A] sm:text-4xl">
+            ব্যবহারের শর্তাবলি
+          </SpringHeading>
+          <p className="mt-3 text-sm text-[#6C757D]">
+            সর্বশেষ হালনাগাদ: {new Date().getFullYear()}
+          </p>
+        </div>
+        <div className="anim-fade-up delay-200 mt-10 space-y-6">
+          {SECTIONS.map((s) => (
+            <section key={s.h} className="card rounded-lg p-7">
+              <SpringHeading as="h2" className="text-lg font-bold text-[#1A1A1A]">{s.h}</SpringHeading>
+              <p className="mt-3 text-sm leading-relaxed text-[#6C757D]">
+                {s.p}
+              </p>
+            </section>
+          ))}
+        </div>
+      </main>
+      <DynamicSections page="terms" />
+      <Footer />
+    </div>
+  );
+}

@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { questions } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { isAdmin } from "@/lib/adminAuth";
+import { canAccess } from "@/lib/adminAuth";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Params) {
-  if (!(await isAdmin())) {
+  if (!(await canAccess("exams"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
@@ -44,7 +44,7 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  if (!(await isAdmin())) {
+  if (!(await canAccess("exams"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;

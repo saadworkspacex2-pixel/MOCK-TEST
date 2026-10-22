@@ -61,11 +61,22 @@ export default async function EditExamPage({
         </section>
 
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-700">
-            {exam.module === "writing"
-              ? "টাস্ক ব্যবস্থাপনা"
-              : "প্রশ্ন ব্যবস্থাপনা"}
-          </h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-slate-700">
+              {exam.module === "writing"
+                ? "প্যাসেজ, টাস্ক ও প্রশ্ন ব্যবস্থাপনা"
+                : "প্যাসেজ ও প্রশ্ন ব্যবস্থাপনা"}
+            </h2>
+            <span className="badge-neutral">
+              {exam.module === "reading"
+                ? "Reading"
+                : exam.module === "listening"
+                  ? "Listening"
+                  : exam.module === "writing"
+                    ? "Writing"
+                    : "MCQ"}
+            </span>
+          </div>
           <QuestionManager examId={exam.id} module={exam.module} />
         </section>
       </div>

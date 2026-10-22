@@ -21,6 +21,15 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
     "রেজিস্ট্রেশন নেই, খরচ নেই। নাম লিখে এক ক্লিকেই আসল পরীক্ষার স্ক্রিনে।",
   header_code: "",
   footer_code: "",
+  // ---- Typography switches (unset | on | off) ----
+  body_bold: "unset",
+  body_italic: "unset",
+  heading_bold: "unset",
+  heading_italic: "unset",
+  accent_bold: "unset",
+  accent_italic: "unset",
+  style_bold: "unset",
+  style_italic: "unset",
   // ---- Branding: logo, favicon, positioning ----
   brand_show_logo: "1",
   brand_logo_url: "",

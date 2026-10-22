@@ -38,6 +38,12 @@ export default async function ExamDetailPage({
       .limit(5),
   ]);
 
+  const passageRows = await db
+    .select({ id: sections.id, title: sections.title, passageTitle: sections.passageTitle, audioUrl: sections.audioUrl })
+    .from(sections)
+    .where(eq(sections.examId, examId))
+    .orderBy(sections.sortOrder);
+
   const totalMarks = qCount.c * exam.marksPerQuestion;
   const isWriting = exam.module === "writing";
   const isReading =
@@ -171,6 +177,31 @@ export default async function ExamDetailPage({
                 )}
               </ul>
             </div>
+
+            {passageRows.length > 0 && (
+              <div className="anim-fade-up delay-200 card rounded-lg p-7">
+                <h2 className="text-lg font-semibold">
+                  {exam.module === "writing" ? "টাস্ক তালিকা" : "প্যাসেজ / সেকশন তালিকা"}
+                </h2>
+                <p className="mt-1 text-sm text-[#6C757D]">
+                  মোট {toBn(passageRows.length)}টি {exam.module === "writing" ? "টাস্ক" : "অংশ"}, প্রতিটির জন্য আলাদা প্রশ্ন রয়েছে।
+                </p>
+                <ol className="mt-4 space-y-2">
+                  {passageRows.map((row, i) => (
+                    <li key={row.id} className="flex items-center justify-between gap-3 rounded-md border border-black/[0.07] bg-[#F8F9FA] px-4 py-2.5 text-sm">
+                      <span className="min-w-0">
+                        <span className="mr-2 inline-grid h-6 w-6 place-items-center rounded bg-[#1A1A1A] text-center text-[11px] font-bold text-white">
+                          {toBn(i + 1)}
+                        </span>
+                        <span className="font-semibold">{row.title}</span>
+                        {row.passageTitle && <span className="text-[#6C757D]"> · {row.passageTitle}</span>}
+                      </span>
+                      {row.audioUrl && <span className="badge-neutral shrink-0">অডিও</span>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             <div className="anim-fade-up delay-300 rounded-lg border border-black/[0.07] card p-7">
               <h2 className="text-lg font-semibold">

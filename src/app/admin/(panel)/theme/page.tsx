@@ -12,11 +12,38 @@ const COLOR_FIELDS = [
 ];
 
 const FONT_SLOTS = [
-  { key: "body", label: "Body Text (p, span, inputs)" },
-  { key: "heading", label: "Headlines (h1, h2, h3)" },
-  { key: "accent", label: "Brand Red Accents / CTA" },
-  { key: "style", label: "Modern / Italic / Quotes" },
+  { key: "body", label: "Body Text (p, span, inputs)", scope: "body, p, span, input, label, li" },
+  { key: "heading", label: "Headlines (h1, h2, h3)", scope: "h1, h2, h3, h4, h5, h6" },
+  { key: "accent", label: "Brand Red Accents / CTA", scope: ".btn-red, .btn-ink, badges" },
+  { key: "style", label: "Modern / Italic / Quotes", scope: "blockquote, em, quotes" },
 ];
+
+const TRI_STATES = [
+  { value: "unset", label: "ডিফল্ট" },
+  { value: "on", label: "চালু" },
+  { value: "off", label: "বন্ধ" },
+] as const;
+
+function triValue(raw: string | undefined): "unset" | "on" | "off" {
+  return raw === "on" || raw === "off" ? raw : "unset";
+}
+
+/** Mirrors the generated CSS so the preview matches the live site. */
+function styleFor(
+  v: Record<string, string>,
+  slot: string,
+  baseWeight: string,
+): React.CSSProperties {
+  const bold = triValue(v[`${slot}_bold`]);
+  const italic = triValue(v[`${slot}_italic`]);
+  return {
+    fontFamily: v[`font_${slot}_family`] || undefined,
+    fontWeight: bold === "on" ? 700 : bold === "off" ? 400 : baseWeight,
+    fontStyle: italic === "on" ? "italic" : italic === "off" ? "normal" : undefined,
+    letterSpacing: v[`${slot}_letter_spacing`] || undefined,
+    lineHeight: v[`${slot}_line_height`] || undefined,
+  };
+}
 
 export default function AdminThemePage() {
   const [v, setV] = useState<Record<string, string>>({});
@@ -136,9 +163,104 @@ export default function AdminThemePage() {
                 <div><label className="text-xs font-semibold">Line Height</label><input value={v[`${s.key}_line_height`] ?? ""} onChange={(e) => set(`${s.key}_line_height`, e.target.value)} placeholder="1.6" className={input} /></div>
               </div>
               {v[`font_${s.key}_url`] && <p className="mt-2 break-all font-mono text-[11px] text-[#6C757D]">{v[`font_${s.key}_url`]}</p>}
-              <p className="mt-4 text-2xl" style={{ fontFamily: v[`font_${s.key}_family`] || undefined, fontWeight: v[`${s.key}_weight`] || undefined, letterSpacing: v[`${s.key}_letter_spacing`] || undefined, lineHeight: v[`${s.key}_line_height`] || undefined }}>
+
+              {/* Bold / Italic switches */}
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {([
+                  { field: "bold", label: "Bold ভার্সন", icon: "B" },
+                  { field: "italic", label: "Italic", icon: "I" },
+                ] as const).map((toggle) => {
+                  const key = `${s.key}_${toggle.field}`;
+                  const active = triValue(v[key]);
+                  return (
+                    <div key={key} className="rounded-md bg-[#F8F9FA] p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-2 text-xs font-bold text-[#212529]">
+                          <span
+                            className="grid h-6 w-6 place-items-center rounded border border-black/15 bg-white text-[11px] leading-none"
+                            style={{
+                              fontWeight: toggle.field === "bold" ? 800 : 500,
+                              fontStyle: toggle.field === "italic" ? "italic" : "normal",
+                            }}
+                          >
+                            {toggle.icon}
+                          </span>
+                          {toggle.label}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                            active === "on"
+                              ? "bg-green-100 text-green-700"
+                              : active === "off"
+                                ? "bg-rose-100 text-rose-700"
+                                : "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {active === "on" ? "চালু" : active === "off" ? "বন্ধ" : "ডিফল্ট"}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-3 gap-1 rounded-md border border-black/10 bg-white p-1">
+                        {TRI_STATES.map((state) => (
+                          <button
+                            key={state.value}
+                            type="button"
+                            onClick={() => set(key, state.value)}
+                            className={`rounded px-2 py-1.5 text-[11px] font-bold transition-colors ${
+                              active === state.value
+                                ? state.value === "off"
+                                  ? "bg-rose-600 text-white"
+                                  : "bg-[#1A1A1A] text-white"
+                                : "text-[#6C757D] hover:bg-slate-100"
+                            }`}
+                          >
+                            {state.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[11px] text-[#6C757D]">
+                প্রযোজ্য: <span className="font-mono">{s.scope}</span>
+              </p>
+
+              <p className="mt-4 text-2xl" style={styleFor(v, s.key, s.key === "body" ? "400" : "700")}>
                 বাংলা টাইপোগ্রাফি Preview · The quick brown fox 123
               </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="card rounded-lg p-6">
+        <h2 className="font-bold">সব স্লটে একসাথে প্রয়োগ</h2>
+        <p className="mt-1 text-sm text-[#6C757D]">
+          চাইলে এক ক্লিকে সব টাইপোগ্রাফি স্লটের Bold/Italic বদলান, তারপর নিচের স্লটগুলোতে আলাদাভাবে ঠিক করে নিন।
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {(["bold", "italic"] as const).map((field) => (
+            <div key={field} className="flex items-center justify-between rounded-md border border-black/[0.07] bg-[#F8F9FA] px-4 py-3">
+              <span className="text-sm font-bold">{field === "bold" ? "Bold ভার্সন" : "Italic"}</span>
+              <div className="flex gap-1 rounded-md border border-black/10 bg-white p-1">
+                {(["on", "unset", "off"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      const patch: Record<string, string> = {};
+                      for (const slot of FONT_SLOTS) patch[`${slot.key}_${field}`] = mode;
+                      setV((old) => ({ ...old, ...patch }));
+                      setSuccess("সব স্লটে প্রয়োগ হয়েছে, সংরক্ষণ করুন");
+                    }}
+                    className={`rounded px-3 py-1.5 text-[11px] font-bold ${
+                      mode === "off" ? "text-rose-700" : "text-slate-700"
+                    } hover:bg-slate-100`}
+                  >
+                    {mode === "on" ? "সব চালু" : mode === "off" ? "সব বন্ধ" : "রিসেট"}
+                  </button>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -148,9 +270,10 @@ export default function AdminThemePage() {
         <h2 className="font-bold">লাইভ প্রিভিউ</h2>
         <div className="mt-4 rounded-md border border-black/10 p-8" style={{ background: v.color_bg || "#F8F9FA", color: v.color_text || "#1A1A1A" }}>
           <span className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: v.color_primary || "#E51A24", color: "#fff" }}>ব্যাজ</span>
-          <h2 className="mt-4 text-3xl" style={{ fontFamily: v.font_heading_family || undefined, fontWeight: v.heading_weight || 700, letterSpacing: v.heading_letter_spacing }}>হেডলাইন দেখে নিন</h2>
-          <p className="mt-3" style={{ fontFamily: v.font_body_family || undefined, lineHeight: v.body_line_height, color: v.color_muted || "#6C757D" }}>বডি টেক্সট, ফন্ট ও লাইন হাইট এখানে লাইভ দেখা যাচ্ছে।</p>
-          <button className="mt-5 rounded-md px-6 py-3 font-bold text-white" style={{ background: v.color_primary || "#E51A24", fontFamily: v.font_accent_family || undefined }}>প্রাইমারি CTA</button>
+          <h2 className="mt-4 text-3xl" style={{ ...styleFor(v, "heading", "700"), letterSpacing: v.heading_letter_spacing || undefined }}>হেডলাইন দেখে নিন</h2>
+          <p className="mt-3" style={{ ...styleFor(v, "body", "400"), color: v.color_muted || "#6C757D" }}>বডি টেক্সট, ফন্ট ও লাইন হাইট এখানে লাইভ দেখা যাচ্ছে।</p>
+          <p className="mt-2 font-bold" style={styleFor(v, "body", "400")}>Bold টেক্সট: দ্রুত প্রস্তুতি শুরু করুন</p>
+          <button className="mt-5 rounded-md px-6 py-3 font-bold text-white" style={{ ...styleFor(v, "accent", "700"), background: v.color_primary || "#E51A24" }}>প্রাইমারি CTA</button>
         </div>
       </section>
     </div>

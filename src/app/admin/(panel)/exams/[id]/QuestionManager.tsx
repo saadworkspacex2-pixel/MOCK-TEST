@@ -103,12 +103,13 @@ export default function QuestionManager({
   const [cursor, setCursor] = useState(0); // ops [0, cursor) are applied
   const [busyHistory, setBusyHistory] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const secFormRef = useRef<HTMLDivElement>(null);
 
-  const needsSections =
-    examModule === "reading" ||
-    examModule === "writing" ||
-    examModule === "listening";
+  // Passages / sections are always available: admins add the reading material
+  // first and attach questions to it (any module can carry passages).
   const isWriting = examModule === "writing";
+  const isListening = examModule === "listening";
+  const sectionNoun = isWriting ? "টাস্ক" : isListening ? "সেকশন" : "প্যাসেজ";
 
   const pushOp = (op: Op) => {
     setHistory((h) => [...h.slice(0, cursor), op]);
@@ -341,8 +342,10 @@ export default function QuestionManager({
       setError("গ্রহণযোগ্য উত্তর দিন (একাধিক হলে | দিয়ে আলাদা করুন)");
       return;
     }
-    if (needsSections && !qForm.sectionId) {
-      setError("প্রশ্নটি কোন অংশের তা নির্বাচন করুন");
+    if (secs.length > 0 && !qForm.sectionId) {
+      setError(
+        `প্রশ্নটি কোন ${sectionNoun}ের অন্তর্গত তা নির্বাচন করুন (অথবা "কোনো ${sectionNoun} নেই" বেছে নিন)`,
+      );
       return;
     }
     setSaving(true);
@@ -448,38 +451,74 @@ export default function QuestionManager({
         )}
       </div>
 
-      {/* ================= SECTIONS ================= */}
-      {needsSections && (
+      {/* ================= PASSAGES / SECTIONS (always available) ================= */}
+      {(
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-800">
-              {isWriting
-                ? "টাস্ক"
-                : examModule === "listening"
-                  ? "সেকশন ও অডিও"
-                  : "প্যাসেজ"}{" "}
-              ({toBn(secs.length)}টি)
-            </h3>
-            <button
-              onClick={() => {
-                setSecOpen((v) => !v);
-                setEditingSec(null);
-                setSecForm(emptySec);
-                setError("");
-              }}
-              className="flex items-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold transition-colors hover:bg-slate-200"
-            >
-              <Icon name={secOpen ? "x" : "plus"} size={15} />
-              {secOpen ? "বন্ধ করুন" : isWriting ? "নতুন টাস্ক" : "নতুন অংশ"}
-            </button>
+          <div className="card rounded-lg p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {isWriting
+                    ? "রাইটিং টাস্ক"
+                    : isListening
+                      ? "লিসেনিং সেকশন ও অডিও"
+                      : "রিডিং প্যাসেজ / রিডিং মেটেরিয়াল"}
+                </h3>
+                <p className="mt-1 text-sm text-[#6C757D]">
+                  {isWriting
+                    ? "এক বা একাধিক টাস্ক যোগ করুন। শিক্ষার্থী বাঁ পাশে টাস্ক, ডান পাশে উত্তর লিখবে।"
+                    : isListening
+                      ? "প্রতিটি সেকশনের জন্য অডিও আপলোড করুন ও প্রশ্ন যোগ করুন।"
+                      : "প্রথমে প্যাসেজ যোগ করুন, তারপর সেই প্যাসেজের অধীনে প্রশ্ন তৈরি করুন। একাধিক প্যাসেজ যোগ করা যাবে।"}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSecOpen(true);
+                  setEditingSec(null);
+                  setSecForm({
+                    ...emptySec,
+                    title: isWriting
+                      ? `Task ${secs.length + 1}`
+                      : isListening
+                        ? `Section ${secs.length + 1}`
+                        : `Passage ${secs.length + 1}`,
+                  });
+                  setError("");
+                  setTimeout(
+                    () => secFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+                    60,
+                  );
+                }}
+                className="btn-red flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-bold"
+              >
+                <Icon name="plus" size={15} />
+                {isWriting ? "টাস্ক যোগ করুন" : isListening ? "সেকশন যোগ করুন" : "প্যাসেজ যোগ করুন"}
+              </button>
+            </div>
+
+            {secs.length === 0 && !secOpen && (
+              <div className="mt-5 rounded-md border border-dashed border-slate-300 bg-[#F8F9FA] px-5 py-6 text-center">
+                <p className="text-sm font-semibold text-slate-700">
+                  এখনও কোনো {sectionNoun} যোগ করা হয়নি
+                </p>
+                <p className="mt-1 text-xs text-[#6C757D]">
+                  উপরের “{sectionNoun} যোগ করুন” বোতামে ক্লিক করে প্রথম {sectionNoun} তৈরি করুন।
+                </p>
+              </div>
+            )}
           </div>
 
+
           {secOpen && (
-            <div className="anim-fade-in card rounded-lg p-6">
+            <div ref={secFormRef} className="anim-fade-in card rounded-lg p-6">
+              <h4 className="mb-4 font-bold">
+                {editingSec ? `${sectionNoun} সম্পাদনা` : `নতুন ${sectionNoun}`}
+              </h4>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-sm font-medium text-slate-700">
-                    অংশের নাম * (যেমন: {isWriting ? "Task 1" : examModule === "listening" ? "Section 1" : "Passage 1"})
+                    {sectionNoun}ের নাম * (যেমন: {isWriting ? "Task 1" : isListening ? "Section 1" : "Passage 1"})
                   </label>
                   <input
                     value={secForm.title}
@@ -518,9 +557,9 @@ export default function QuestionManager({
                   <label className="text-sm font-medium text-slate-700">
                     {isWriting
                       ? "টাস্কের বিবরণ *"
-                      : examModule === "listening"
+                      : isListening
                         ? "ট্রান্সক্রিপ্ট / নোট (ঐচ্ছিক)"
-                        : "প্যাসেজের মূল লেখা *"}
+                        : "প্যাসেজ / রিডিং মেটেরিয়ালের লেখা *"}
                   </label>
                   <textarea
                     value={secForm.passageText}
@@ -586,6 +625,16 @@ export default function QuestionManager({
                 className="btn-red mt-5 rounded-md px-6 py-2.5 text-sm font-bold disabled:opacity-60"
               >
                 {saving ? "সংরক্ষণ হচ্ছে…" : editingSec ? "আপডেট করুন" : "যোগ করুন"}
+              </button>
+              <button
+                onClick={() => {
+                  setSecOpen(false);
+                  setEditingSec(null);
+                  setSecForm(emptySec);
+                }}
+                className="rounded-md border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                বাতিল
               </button>
             </div>
           )}
@@ -701,30 +750,38 @@ export default function QuestionManager({
                       <option value="gap">ফাঁকা পূরণ (টাইপ করা উত্তর)</option>
                     </select>
                   </div>
-                  {needsSections && (
-                    <div>
-                      <label className="text-sm font-medium text-slate-700">
-                        কোন অংশের প্রশ্ন *
-                      </label>
-                      <select
-                        value={qForm.sectionId}
-                        onChange={(e) =>
-                          setQForm((f) => ({
-                            ...f,
-                            sectionId: Number(e.target.value),
-                          }))
-                        }
-                        className={input}
-                      >
-                        <option value={0}>নির্বাচন করুন</option>
-                        {secs.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      কোন {sectionNoun}ের প্রশ্ন
+                    </label>
+                    <select
+                      value={qForm.sectionId}
+                      onChange={(e) =>
+                        setQForm((f) => ({
+                          ...f,
+                          sectionId: Number(e.target.value),
+                        }))
+                      }
+                      className={input}
+                    >
+                      <option value={0}>
+                        {secs.length > 0
+                          ? `— ${sectionNoun} নির্বাচন করুন —`
+                          : `— কোনো ${sectionNoun} নেই —`}
+                      </option>
+                      {secs.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.title}
+                          {s.passageTitle ? ` · ${s.passageTitle}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {secs.length === 0 && (
+                      <p className="mt-1.5 text-[11px] text-[#6C757D]">
+                        উপরে “{sectionNoun} যোগ করুন” থেকে {sectionNoun} তৈরি করুন।
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <label className="mt-4 block text-sm font-medium text-slate-700">

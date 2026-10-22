@@ -520,7 +520,7 @@ export default function TakeExamClient({ examId }: { examId: number }) {
             />
           </div>
         </div>
-      ) : isReading && part.sec ? (
+      ) : part.sec && (part.sec.passageText || part.sec.audioUrl) ? (
         /* -------- READING: passage left, questions right -------- */
         <div ref={splitRef} className="exam-split" style={{ ["--split" as string]: `${splitPct}%` }}>
           <div className="min-h-0 overflow-y-auto border-b border-stone-300 bg-white p-6 lg:p-10">

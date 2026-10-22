@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { sections } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
-import { isAdmin } from "@/lib/adminAuth";
+import { canAccess } from "@/lib/adminAuth";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function POST(req: Request, { params }: Params) {
-  if (!(await isAdmin())) {
+  if (!(await canAccess("exams"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;

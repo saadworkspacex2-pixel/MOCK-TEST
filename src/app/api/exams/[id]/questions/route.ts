@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { exams, questions, sections } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
-import { isAdmin } from "@/lib/adminAuth";
+import { canAccess } from "@/lib/adminAuth";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -32,7 +32,7 @@ export async function GET(req: Request, { params }: Params) {
       .orderBy(asc(questions.sortOrder), asc(questions.id)),
   ]);
 
-  if (wantFull && (await isAdmin())) {
+  if (wantFull && (await canAccess("exams"))) {
     return NextResponse.json({ exam, sections: secs, questions: rows });
   }
 
@@ -50,7 +50,7 @@ export async function GET(req: Request, { params }: Params) {
 }
 
 export async function POST(req: Request, { params }: Params) {
-  if (!(await isAdmin())) {
+  if (!(await canAccess("exams"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;

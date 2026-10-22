@@ -1,4 +1,8 @@
 -- Extra original demo content (run after schema.sql + seed.sql + demo media insert)
+BEGIN;
+CREATE SCHEMA IF NOT EXISTS lhbd_app;
+SET LOCAL search_path TO lhbd_app;
+
 INSERT INTO exams (title, description, category, module, duration_minutes, marks_per_question, negative_mark, is_live)
 SELECT 'Listening ডেমো টেস্ট — Section 1', 'অডিও প্লেয়ারসহ লিসেনিং স্ক্রিনের ডেমো। ট্রান্সক্রিপ্ট পড়ে বা অডিও শুনে উত্তর দিন, জমা দিলেই ব্যান্ড স্কোর।', 'IELTS Listening', 'listening', 10, 1, 0, true
 WHERE NOT EXISTS (SELECT 1 FROM exams WHERE module='listening');
@@ -41,3 +45,5 @@ INSERT INTO settings (key, value) VALUES
 ('seo_description','কম্পিউটার-ডেলিভার্ড পরীক্ষার মতো স্ক্রিনে Reading, Listening, Writing ও Grammar মক টেস্ট। জমা দেওয়ার সঙ্গে সঙ্গেই ব্যান্ড স্কোর, ব্যাখ্যাসহ উত্তর ও লিডারবোর্ড, সব ফ্রি।'),
 ('seo_keywords','মক টেস্ট, mock test, reading test, listening test, writing task, band score, অনলাইন পরীক্ষা')
 ON CONFLICT (key) DO NOTHING;
+
+COMMIT;

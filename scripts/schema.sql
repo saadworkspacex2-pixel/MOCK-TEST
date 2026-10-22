@@ -1,3 +1,7 @@
+BEGIN;
+CREATE SCHEMA IF NOT EXISTS lhbd_app;
+SET LOCAL search_path TO lhbd_app;
+
 CREATE TABLE IF NOT EXISTS exams (
   id serial PRIMARY KEY,
   title text NOT NULL,
@@ -114,3 +118,9 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
   last_seen timestamp NOT NULL DEFAULT now(),
   created_at timestamp NOT NULL DEFAULT now()
 );
+
+ALTER TABLE exams ADD COLUMN IF NOT EXISTS rules jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE attempts ADD COLUMN IF NOT EXISTS feedback jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE attempts ADD COLUMN IF NOT EXISTS ip text NOT NULL DEFAULT '';
+
+COMMIT;

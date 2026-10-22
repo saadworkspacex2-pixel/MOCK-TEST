@@ -1,4 +1,8 @@
 -- Full reseed with module-based exams (original content)
+BEGIN;
+CREATE SCHEMA IF NOT EXISTS lhbd_app;
+SET LOCAL search_path TO lhbd_app;
+
 TRUNCATE attempts, questions, sections, exams, resources RESTART IDENTITY CASCADE;
 
 -- ============ EXAM 1: Academic Reading Mock 1 ============
@@ -125,3 +129,8 @@ INSERT INTO attempts (exam_id, student_name, score, band_score, correct_count, w
 (2, 'নুসরাত জাহান', 6, 6.5, 6, 2, 0, 8, 820, '{}', 'scored'),
 (4, 'আরিফুল ইসলাম', 6.75, NULL, 7, 1, 0, 8, 420, '{}', 'scored'),
 (5, 'ফারজানা মিম', 5, NULL, 5, 1, 0, 6, 300, '{}', 'scored');
+
+COMMIT;
+
+-- 20 additional original full-length IELTS-format tests (40 questions each)
+\ir ielts-library.sql

@@ -83,7 +83,7 @@ export default function AdminThemePage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">থিম ও টাইপোগ্রাফি ইঞ্জিন</h1>
-          <p className="mt-1 text-sm text-[#6C757D]">রং, ফন্ট, ডার্ক মোড ও টেক্সট স্টাইল, কোড ছাড়াই</p>
+          <p className="mt-1 text-sm text-[#6C757D]">রং, ফন্ট ও টেক্সট স্টাইল, কোড ছাড়াই</p>
         </div>
         <button onClick={save} disabled={saving} className="btn-red rounded-md px-6 py-2.5 text-sm font-bold disabled:opacity-60">
           {saving ? "সংরক্ষণ হচ্ছে…" : "থিম সংরক্ষণ"}
@@ -114,10 +114,6 @@ export default function AdminThemePage() {
             <label className="text-sm font-medium">Background Gradient (CSS, ঐচ্ছিক)</label>
             <input value={v.color_gradient ?? ""} onChange={(e) => set("color_gradient", e.target.value)} placeholder="linear-gradient(135deg,#F8F9FA,#FFFFFF)" className={input} />
           </div>
-          <label className="flex items-end gap-3 pb-2 text-sm font-bold">
-            <input type="checkbox" checked={v.dark_mode === "1"} onChange={(e) => set("dark_mode", e.target.checked ? "1" : "0")} className="h-5 w-5 accent-[#E51A24]" />
-            ডার্ক মোড চালু
-          </label>
         </div>
       </section>
 

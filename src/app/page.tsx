@@ -149,10 +149,15 @@ export default async function HomePage() {
       <Navbar />
 
       {/* ================= HERO ================= */}
-      <section className="relative pt-32 pb-20 sm:pt-40">
-        <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
-          <div className="anim-fade-up card inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-[#212529]">
-            <span className="anim-pulse-ring inline-block h-2 w-2 rounded-full bg-[#E51A24]" />
+      <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40">
+        <div className="mesh-glow" aria-hidden>
+          <span className="mesh-blob mesh-blob--brand -top-16 left-[8%] h-72 w-72" />
+          <span className="mesh-blob mesh-blob--teal top-10 right-[6%] h-80 w-80 [animation-delay:4s]" />
+          <span className="mesh-blob mesh-blob--slate -bottom-24 left-1/3 h-72 w-72 [animation-delay:8s]" />
+        </div>
+        <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-8">
+          <div className="anim-fade-up glass-card inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-[#212529]">
+            <span className="live-dot" />
             {toBn(liveExams.length)}টি {s.hero_badge}
           </div>
 
@@ -188,7 +193,7 @@ export default async function HomePage() {
               { label: "অ্যাটেম্পট", value: attemptCount.c, suffix: "" },
               { label: "রিসোর্স", value: resourceCount.c, suffix: "+" },
             ].map((s) => (
-              <div key={s.label} className="card rounded-lg p-4 text-center">
+              <div key={s.label} className="card card-hover rounded-lg p-4 text-center">
                 <div className="text-2xl font-extrabold text-[#1A1A1A]">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
@@ -213,7 +218,7 @@ export default async function HomePage() {
       </section>
 
       {/* ================= MARQUEE ================= */}
-      <section className="overflow-hidden border-y border-black/[0.06] bg-white py-5">
+      <section className="marquee-mask overflow-hidden border-y border-black/[0.06] bg-white py-5">
         <div className="anim-marquee flex w-max gap-3">
           {[...MARQUEE, ...MARQUEE].map((c, i) => (
             <span
@@ -292,7 +297,7 @@ export default async function HomePage() {
           <div className="mt-14 grid gap-5 sm:grid-cols-2">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={(i % 2) * 90}>
-                <div className="lift h-full rounded-lg border border-black/[0.07] bg-[#F8F9FA] p-7">
+                <div className="lift card-hover h-full rounded-lg border border-black/[0.07] bg-[#F8F9FA] p-7">
                   <div className="grid h-11 w-11 place-items-center rounded-md bg-white text-[#1A1A1A]">
                     <Icon name={f.icon} size={21} />
                   </div>
@@ -332,10 +337,10 @@ export default async function HomePage() {
             <Reveal key={e.id} delay={(i % 2) * 90}>
               <Link
                 href={`/exams/${e.id}`}
-                className="lift card group block h-full rounded-lg p-6"
+                className="lift card card-hover group block h-full rounded-lg p-6"
               >
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 rounded-full bg-[#F8F9FA] px-3.5 py-1.5 text-xs font-bold text-[#6C757D]">
+                  <span className="badge-neutral">
                     <Icon
                       name={
                         e.module === "reading"
@@ -356,8 +361,8 @@ export default async function HomePage() {
                           ? "Writing"
                           : "MCQ"}
                   </span>
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-[#E51A24]">
-                    <span className="anim-pulse-ring h-1.5 w-1.5 rounded-full bg-[#E51A24]" />
+                  <span className="badge-live">
+                    <span className="live-dot" />
                     লাইভ
                   </span>
                 </div>

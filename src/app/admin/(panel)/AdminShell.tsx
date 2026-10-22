@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/analytics", label: "লাইভ অ্যানালিটিক্স", icon: "chart", area: "analytics" },
   { href: "/admin/pages", label: "পেজ বিল্ডার", icon: "screen", area: "pages" },
   { href: "/admin/theme", label: "থিম ও ফন্ট", icon: "bulb", area: "theme" },
+  { href: "/admin/branding", label: "লোগো ও ফ্যাভিকন", icon: "screen", area: "theme" },
   { href: "/admin/media", label: "মিডিয়া ভল্ট", icon: "play", area: "media" },
   { href: "/admin/resources", label: "রিসোর্স", icon: "book", area: "pages" },
   { href: "/admin/results", label: "ফলাফল", icon: "trophy", area: "exams" },

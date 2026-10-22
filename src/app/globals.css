@@ -249,3 +249,305 @@ details summary::-webkit-details-marker {
     print-color-adjust: exact;
   }
 }
+
+/* ================= Glassmorphism & Liquid Glass ================= */
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px) saturate(1.7);
+  -webkit-backdrop-filter: blur(14px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(26, 26, 26, 0.04),
+    0 8px 24px -12px rgba(26, 26, 26, 0.12);
+}
+
+.glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 10px 30px -14px rgba(26, 26, 26, 0.14);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    130deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 38%
+  );
+  opacity: 0.9;
+}
+
+/* ================= Ambient mesh glows ================= */
+
+.mesh-glow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mesh-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.55;
+  animation: meshFloat 18s ease-in-out infinite;
+}
+
+.mesh-blob--brand {
+  background: radial-gradient(circle at 30% 30%, rgba(229, 26, 36, 0.28), transparent 70%);
+}
+.mesh-blob--teal {
+  background: radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.26), transparent 70%);
+}
+.mesh-blob--slate {
+  background: radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.16), transparent 70%);
+}
+
+@keyframes meshFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(26px, -30px, 0) scale(1.08); }
+  66% { transform: translate3d(-22px, 20px, 0) scale(0.94); }
+}
+
+/* ================= Card hover lift & glow ================= */
+
+.card-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 26, 36, 0.28);
+  box-shadow:
+    0 12px 24px -10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(229, 26, 36, 0.08);
+}
+
+.lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+.lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 26, 36, 0.25);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* ================= Marquee fade mask ================= */
+
+.marquee-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+/* ================= Live pulse dot ================= */
+
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #10b981;
+  flex-shrink: 0;
+}
+.live-dot::before,
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+}
+.live-dot::before {
+  animation: pingSoft 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.live-dot::after {
+  animation: pingSoft 2s cubic-bezier(0, 0, 0.2, 1) infinite 0.6s;
+}
+@keyframes pingSoft {
+  0% { transform: scale(1); opacity: 0.6; }
+  75%, 100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* ================= Exam palette states ================= */
+
+.pal-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(26, 26, 26, 0.12);
+  background: #fff;
+  color: #495057;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.pal-btn:hover {
+  border-color: rgba(26, 26, 26, 0.3);
+}
+
+.pal-btn--answered {
+  background: #e51a24;
+  border-color: #e51a24;
+  color: #fff;
+}
+
+.pal-btn--current {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(229, 26, 36, 0.45);
+  animation: currentPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes currentPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(229, 26, 36, 0.45); }
+  50% { box-shadow: 0 0 0 5px rgba(229, 26, 36, 0.18); }
+}
+
+.pal-flag {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: #f59e0b;
+  border: 1.5px solid #fff;
+}
+
+/* ================= Resizable split divider ================= */
+
+.split-handle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  background: rgba(26, 26, 26, 0.06);
+  transition: background-color 0.2s ease;
+  touch-action: none;
+}
+.split-handle::before {
+  content: "";
+  width: 4px;
+  height: 42px;
+  border-radius: 9999px;
+  background: rgba(26, 26, 26, 0.16);
+  box-shadow:
+    0 -8px 0 rgba(26, 26, 26, 0.12),
+    0 8px 0 rgba(26, 26, 26, 0.12);
+}
+.split-handle:hover,
+.split-handle[data-dragging="true"] {
+  background: rgba(229, 26, 36, 0.1);
+}
+.split-handle:hover::before,
+.split-handle[data-dragging="true"]::before {
+  background: rgba(229, 26, 36, 0.55);
+}
+
+/* ================= Badges ================= */
+
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+  padding: 0.3rem 0.65rem;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  background: rgba(229, 26, 36, 0.08);
+  color: #e51a24;
+  padding: 0.3rem 0.65rem;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-neutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  background: rgba(108, 117, 125, 0.1);
+  color: #495057;
+  padding: 0.3rem 0.65rem;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ================= Resizable exam split panes ================= */
+
+.exam-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+  flex: 1 1 0%;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.exam-split > .split-handle {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .exam-split {
+    grid-template-columns: var(--split, 50%) 12px minmax(0, 1fr);
+    grid-template-rows: 1fr;
+  }
+  .exam-split > .split-handle {
+    display: flex;
+  }
+}
+

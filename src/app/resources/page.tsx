@@ -91,7 +91,7 @@ export default async function ResourcesPage({
                   href={r.url || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="lift group block h-full rounded-lg border border-black/[0.07] card p-6 hover:border-red-300"
+                  className="lift card card-hover group block h-full rounded-lg p-6"
                 >
                   <div className="flex items-center justify-between">
                     <span

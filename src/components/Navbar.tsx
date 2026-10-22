@@ -33,7 +33,7 @@ export default function Navbar() {
       <div
         className={`mx-auto transition-all duration-500 ${
           scrolled
-            ? "glass max-w-5xl rounded-lg"
+            ? "glass max-w-5xl rounded-xl"
             : "max-w-7xl rounded-none border-b border-transparent bg-transparent"
         }`}
       >

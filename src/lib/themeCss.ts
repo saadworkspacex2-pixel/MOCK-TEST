@@ -1,12 +1,11 @@
 // Builds runtime theme CSS from admin-managed settings.
 export function buildThemeCss(s: Record<string, string>): string {
-  const dark = s.dark_mode === "1";
   const red = s.color_primary || "#E51A24";
-  const bg = s.color_bg || (dark ? "#111214" : "#F8F9FA");
-  const surface = s.color_surface || (dark ? "#1A1A1A" : "#FFFFFF");
-  const ink = s.color_text || (dark ? "#F8F9FA" : "#1A1A1A");
-  const muted = s.color_muted || (dark ? "#ADB5BD" : "#6C757D");
-  const border = s.color_border || (dark ? "rgba(255,255,255,.12)" : "rgba(26,26,26,.09)");
+  const bg = s.color_bg || "#F8F9FA";
+  const surface = s.color_surface || "#FFFFFF";
+  const ink = s.color_text || "#1A1A1A";
+  const muted = s.color_muted || "#6C757D";
+  const border = s.color_border || "rgba(26,26,26,.09)";
 
   const fontFace = (name: string, url: string) =>
     url

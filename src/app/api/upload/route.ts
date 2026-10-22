@@ -16,6 +16,9 @@ function allowedMime(mime: string): boolean {
     mime === "font/otf" ||
     mime === "application/font-woff" ||
     mime === "application/vnd.ms-fontobject" ||
+    mime === "image/svg+xml" ||
+    mime === "image/x-icon" ||
+    mime === "image/vnd.microsoft.icon" ||
     mime === "application/octet-stream"
   );
 }

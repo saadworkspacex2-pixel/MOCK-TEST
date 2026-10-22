@@ -54,6 +54,9 @@ export default function TakeExamClient({ examId }: { examId: number }) {
   );
   const [optionOrders, setOptionOrders] = useState<Record<number, number[]>>({});
   const [sectionSeconds, setSectionSeconds] = useState<number | null>(null);
+  const [splitPct, setSplitPct] = useState(50);
+  const [draggingSplit, setDraggingSplit] = useState(false);
+  const splitRef = useRef<HTMLDivElement>(null);
 
   const studentName =
     typeof window !== "undefined"
@@ -190,6 +193,38 @@ export default function TakeExamClient({ examId }: { examId: number }) {
     const t = setTimeout(() => setSectionSeconds((s) => (s ?? 1) - 1), 1000);
     return () => clearTimeout(t);
   }, [sectionSeconds, sectionMinutes, activePart, parts.length, submit]);
+
+  useEffect(() => {
+    if (!draggingSplit) return;
+    const move = (e: PointerEvent) => {
+      const el = splitRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
+      setSplitPct(Math.min(72, Math.max(28, pct)));
+    };
+    const stop = () => setDraggingSplit(false);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+  }, [draggingSplit]);
+
+  const handle = (
+    <div
+      className="split-handle"
+      data-dragging={draggingSplit}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        setDraggingSplit(true);
+      }}
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="প্যানেল রিসাইজ করুন"
+    />
+  );
 
   const jumpTo = (q: Q) => {
     const pi = parts.findIndex((p) => p.questions.some((x) => x.id === q.id));
@@ -423,8 +458,8 @@ export default function TakeExamClient({ examId }: { examId: number }) {
       {/* ===== body ===== */}
       {isWriting ? (
         /* -------- WRITING: task left, answer right -------- */
-        <div className="grid flex-1 grid-rows-2 overflow-hidden md:grid-cols-2 md:grid-rows-1">
-          <div className="overflow-y-auto border-b border-stone-300 bg-white p-6 md:border-r md:border-b-0 lg:p-10">
+        <div ref={splitRef} className="exam-split" style={{ ["--split" as string]: `${splitPct}%` }}>
+          <div className="min-h-0 overflow-y-auto border-b border-stone-300 bg-white p-6 lg:p-10">
             {part.sec ? (
               <>
                 <p className="text-xs font-bold tracking-widest text-stone-400 uppercase">
@@ -463,7 +498,8 @@ export default function TakeExamClient({ examId }: { examId: number }) {
               <p className="text-stone-500">কোনো টাস্ক যোগ করা হয়নি।</p>
             )}
           </div>
-          <div className="flex flex-col overflow-hidden bg-stone-50">
+          {handle}
+          <div className="flex min-h-0 flex-col overflow-hidden bg-stone-50">
             <div className="flex items-center justify-between border-b border-stone-200 px-6 py-3">
               <p className="text-sm font-semibold text-slate-700">
                 আপনার উত্তর
@@ -486,8 +522,8 @@ export default function TakeExamClient({ examId }: { examId: number }) {
         </div>
       ) : isReading && part.sec ? (
         /* -------- READING: passage left, questions right -------- */
-        <div className="grid flex-1 grid-rows-2 overflow-hidden md:grid-cols-2 md:grid-rows-1">
-          <div className="overflow-y-auto border-b border-stone-300 bg-white p-6 md:border-r md:border-b-0 lg:p-10">
+        <div ref={splitRef} className="exam-split" style={{ ["--split" as string]: `${splitPct}%` }}>
+          <div className="min-h-0 overflow-y-auto border-b border-stone-300 bg-white p-6 lg:p-10">
             <p className="text-xs font-bold tracking-widest text-stone-400 uppercase">
               {part.sec.title}
             </p>
@@ -504,7 +540,8 @@ export default function TakeExamClient({ examId }: { examId: number }) {
               {part.sec.passageText}
             </div>
           </div>
-          <div className="overflow-y-auto bg-stone-100 p-4 sm:p-6">
+          {handle}
+          <div className="min-h-0 overflow-y-auto bg-stone-100 p-4 sm:p-6">
             {part.sec.instruction && (
               <p className="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
                 {part.sec.instruction}
@@ -565,17 +602,13 @@ export default function TakeExamClient({ examId }: { examId: number }) {
                     <button
                       key={q.id}
                       onClick={() => jumpTo(q)}
-                      className={`relative grid h-8 w-8 shrink-0 place-items-center rounded text-xs font-bold transition-all ${
-                        activeQ === q.id
-                          ? "scale-110 bg-[#E51A24] text-white"
-                          : done
-                            ? "bg-slate-800 text-white"
-                            : "border border-stone-300 bg-white text-slate-600 hover:border-slate-500"
+                      className={`pal-btn shrink-0 ${done ? "pal-btn--answered" : ""} ${
+                        activeQ === q.id ? "pal-btn--current" : ""
                       }`}
                     >
                       {flatNumber[q.id]}
                       {flagged && (
-                        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-white" />
+                        <span className="pal-flag" />
                       )}
                     </button>
                   );

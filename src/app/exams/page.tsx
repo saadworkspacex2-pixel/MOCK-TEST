@@ -78,14 +78,14 @@ export default async function ExamsPage({
             <Reveal key={r.exam.id} delay={(i % 3) * 80}>
               <Link
                 href={`/exams/${r.exam.id}`}
-                className="lift group block h-full rounded-lg border border-black/[0.07] card p-6 hover:border-red-300"
+                className="lift card card-hover group block h-full rounded-lg p-6"
               >
                 <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                  <span className="badge-neutral">
                     {r.exam.category}
                   </span>
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-[#E51A24]">
-                    <span className="anim-pulse-ring h-1.5 w-1.5 rounded-full bg-[#E51A24]" />
+                  <span className="badge-live">
+                    <span className="live-dot" />
                     লাইভ
                   </span>
                 </div>

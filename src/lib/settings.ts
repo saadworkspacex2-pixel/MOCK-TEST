@@ -21,7 +21,69 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
     "রেজিস্ট্রেশন নেই, খরচ নেই। নাম লিখে এক ক্লিকেই আসল পরীক্ষার স্ক্রিনে।",
   header_code: "",
   footer_code: "",
+  // ---- Branding: logo, favicon, positioning ----
+  brand_show_logo: "1",
+  brand_logo_url: "",
+  brand_logo_width: "38",
+  brand_logo_height: "38",
+  brand_logo_x: "0",
+  brand_logo_y: "0",
+  brand_logo_radius: "10",
+  brand_show_text: "1",
+  brand_name: "LHBD",
+  brand_name_accent: ".",
+  brand_name_size: "20",
+  brand_tagline: "মক টেস্ট প্ল্যাটফর্ম",
+  brand_show_tagline: "1",
+  // ---- Favicon ----
+  favicon_url: "",
+  favicon_bg: "#E51A24",
+  favicon_color: "#FFFFFF",
+  favicon_text: "L",
 };
+
+export type Branding = {
+  showLogo: boolean;
+  logoUrl: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  radius: number;
+  showText: boolean;
+  name: string;
+  nameAccent: string;
+  nameSize: number;
+  tagline: string;
+  showTagline: boolean;
+};
+
+function num(value: string | undefined, fallback: number): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+export function brandingFrom(s: Record<string, string>): Branding {
+  return {
+    showLogo: s.brand_show_logo !== "0",
+    logoUrl: s.brand_logo_url || "",
+    width: num(s.brand_logo_width, 38),
+    height: num(s.brand_logo_height, 38),
+    x: num(s.brand_logo_x, 0),
+    y: num(s.brand_logo_y, 0),
+    radius: num(s.brand_logo_radius, 10),
+    showText: s.brand_show_text !== "0",
+    name: s.brand_name || "LHBD",
+    nameAccent: s.brand_name_accent ?? ".",
+    nameSize: num(s.brand_name_size, 20),
+    tagline: s.brand_show_tagline === "0" ? "" : s.brand_tagline || "",
+    showTagline: s.brand_show_tagline !== "0",
+  };
+}
+
+export async function getBranding(): Promise<Branding> {
+  return brandingFrom(await getSettings());
+}
 
 export async function getSettings(): Promise<Record<string, string>> {
   try {
